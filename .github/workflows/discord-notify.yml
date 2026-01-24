@@ -1,0 +1,64 @@
+name: Discord Notification
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    types: [opened, closed, reopened]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push Notification
+        if: github.event_name == 'push'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: "🚀 New Commit"
+          description: |
+            **Branch:** `${{ github.ref_name }}`
+            **Commit:** ${{ github.event.head_commit.message }}
+            **Author:** ${{ github.event.head_commit.author.name }}
+          color: 0x00FF00
+          url: ${{ github.event.head_commit.url }}
+
+      - name: PR Opened Notification
+        if: github.event_name == 'pull_request' && github.event.action == 'opened'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: "📝 New Pull Request"
+          description: |
+            **Title:** ${{ github.event.pull_request.title }}
+            **Author:** ${{ github.event.pull_request.user.login }}
+            **Branch:** `${{ github.event.pull_request.head.ref }}` → `${{ github.event.pull_request.base.ref }}`
+          color: 0x0099FF
+          url: ${{ github.event.pull_request.html_url }}
+
+      - name: PR Merged Notification
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: "✅ Pull Request Merged"
+          description: |
+            **Title:** ${{ github.event.pull_request.title }}
+            **Merged by:** ${{ github.event.pull_request.merged_by.login }}
+            **Branch:** `${{ github.event.pull_request.head.ref }}` → `${{ github.event.pull_request.base.ref }}`
+          color: 0x9B59B6
+          url: ${{ github.event.pull_request.html_url }}
+
+      - name: PR Closed Notification
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: "❌ Pull Request Closed"
+          description: |
+            **Title:** ${{ github.event.pull_request.title }}
+            **Author:** ${{ github.event.pull_request.user.login }}
+          color: 0xFF0000
+          url: ${{ github.event.pull_request.html_url }}
