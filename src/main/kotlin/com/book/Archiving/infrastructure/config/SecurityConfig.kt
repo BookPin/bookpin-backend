@@ -1,4 +1,4 @@
-package com.book.Archiving.config
+package com.book.Archiving.infrastructure.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -26,4 +26,5 @@ class SecurityConfig {
             .headers { it.frameOptions { frame -> frame.disable() } }
             .build()
     }
+
 }

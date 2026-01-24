@@ -1,8 +1,9 @@
 package com.book.Archiving.app.auth
 
 import com.book.Archiving.domain.auth.SocialLoginClient
-import com.book.Archiving.domain.auth.TokenProvider
+import com.book.Archiving.domain.auth.SocialUserInfo
 import com.book.Archiving.domain.auth.TokenPair
+import com.book.Archiving.domain.auth.TokenProvider
 import com.book.Archiving.domain.user.SocialType
 import com.book.Archiving.domain.user.User
 import com.book.Archiving.domain.user.UserRepository
@@ -18,36 +19,10 @@ class AuthService(
 
     @Transactional
     fun socialLogin(provider: SocialType, accessToken: String): AuthResponse {
-        val socialLoginClient = socialLoginClients.find { it.getProviderType() == provider }
-            ?: throw IllegalArgumentException("Unsupported social provider: $provider")
-
-        val socialUserInfo = socialLoginClient.getUserInfo(accessToken)
-
+        val socialUserInfo = getSocialUserInfo(provider, accessToken)
         val existingUser = userRepository.findBySocialIdAndSocialProvider(socialUserInfo.socialId, provider)
-
-        val user = if (existingUser != null) {
-            val updatedUser = existingUser.updateProfile(
-                email = socialUserInfo.email,
-                nickname = socialUserInfo.nickname,
-                profileImageUrl = socialUserInfo.profileImageUrl
-            )
-            userRepository.save(updatedUser)
-        } else {
-            userRepository.save(
-                User(
-                    socialId = socialUserInfo.socialId,
-                    socialProvider = provider,
-                    email = socialUserInfo.email,
-                    nickname = socialUserInfo.nickname,
-                    profileImageUrl = socialUserInfo.profileImageUrl
-                )
-            )
-        }
-
-        val tokenPair = TokenPair(
-            accessToken = tokenProvider.createAccessToken(user.id),
-            refreshToken = tokenProvider.createRefreshToken(user.id)
-        )
+        val user = findOrCreateUser(existingUser, socialUserInfo, provider)
+        val tokenPair = createTokenPair(user.id)
 
         return AuthResponse(
             userId = user.id,
@@ -58,14 +33,49 @@ class AuthService(
     }
 
     fun refreshToken(refreshToken: String): TokenPair {
-        if (!tokenProvider.validateToken(refreshToken)) {
-            throw IllegalArgumentException("Invalid refresh token")
-        }
+        require(tokenProvider.validateToken(refreshToken)) { "Invalid refresh token" }
 
         val userId = tokenProvider.getUserIdFromToken(refreshToken)
-        userRepository.findById(userId)
-            ?: throw IllegalArgumentException("User not found")
+        userRepository.findById(userId) ?: throw IllegalArgumentException("User not found")
 
+        return createTokenPair(userId)
+    }
+
+    private fun getSocialUserInfo(provider: SocialType, accessToken: String): SocialUserInfo {
+        val client = socialLoginClients.find { it.getProviderType() == provider }
+            ?: throw IllegalArgumentException("Unsupported social provider: $provider")
+        return client.getUserInfo(accessToken)
+    }
+
+    private fun findOrCreateUser(existingUser: User?, socialUserInfo: SocialUserInfo, provider: SocialType): User {
+        return if (existingUser != null) {
+            updateExistingUser(existingUser, socialUserInfo)
+        } else {
+            createNewUser(socialUserInfo, provider)
+        }
+    }
+
+    private fun updateExistingUser(user: User, socialUserInfo: SocialUserInfo): User {
+        val updatedUser = user.updateProfile(
+            email = socialUserInfo.email,
+            nickname = socialUserInfo.nickname,
+            profileImageUrl = socialUserInfo.profileImageUrl
+        )
+        return userRepository.save(updatedUser)
+    }
+
+    private fun createNewUser(socialUserInfo: SocialUserInfo, provider: SocialType): User {
+        val newUser = User(
+            socialId = socialUserInfo.socialId,
+            socialProvider = provider,
+            email = socialUserInfo.email,
+            nickname = socialUserInfo.nickname,
+            profileImageUrl = socialUserInfo.profileImageUrl
+        )
+        return userRepository.save(newUser)
+    }
+
+    private fun createTokenPair(userId: Long): TokenPair {
         return TokenPair(
             accessToken = tokenProvider.createAccessToken(userId),
             refreshToken = tokenProvider.createRefreshToken(userId)

@@ -22,9 +22,7 @@ class AppleSocialLoginAdapter(
     override fun getProviderType(): SocialType = SocialType.APPLE
 
     override fun getUserInfo(accessToken: String): SocialUserInfo {
-        val idToken = accessToken
-        val payload = verifyAndDecodeIdToken(idToken)
-
+        val payload = verifyAndDecodeIdToken(accessToken)
         return SocialUserInfo(
             socialId = payload.sub,
             email = payload.email,
@@ -34,37 +32,38 @@ class AppleSocialLoginAdapter(
     }
 
     private fun verifyAndDecodeIdToken(idToken: String): AppleIdTokenPayload {
-        val publicKeys = appleAuthFeignClient.getPublicKeys()
+        val kid = extractKidFromToken(idToken)
+        val publicKey = getMatchingPublicKey(kid)
+        return parseIdToken(idToken, publicKey)
+    }
+
+    private fun extractKidFromToken(idToken: String): String {
         val headerJson = String(Base64.getUrlDecoder().decode(idToken.split(".")[0]))
         val header = objectMapper.readValue(headerJson, Map::class.java)
-        val kid = header["kid"] as String
+        return header["kid"] as String
+    }
 
+    private fun getMatchingPublicKey(kid: String): PublicKey {
+        val publicKeys = appleAuthFeignClient.getPublicKeys()
         val matchingKey = publicKeys.keys.find { it.kid == kid }
             ?: throw IllegalArgumentException("Matching public key not found")
+        return generatePublicKey(matchingKey.n, matchingKey.e)
+    }
 
-        val publicKey = generatePublicKey(matchingKey.n, matchingKey.e)
-
+    private fun parseIdToken(idToken: String, publicKey: PublicKey): AppleIdTokenPayload {
         val claims = Jwts.parser()
             .verifyWith(publicKey)
             .build()
             .parseSignedClaims(idToken)
             .payload
-
-        return AppleIdTokenPayload(
-            sub = claims.subject,
-            email = claims["email"] as? String
-        )
+        return AppleIdTokenPayload(sub = claims.subject, email = claims["email"] as? String)
     }
 
     private fun generatePublicKey(n: String, e: String): PublicKey {
-        val nBytes = Base64.getUrlDecoder().decode(n)
-        val eBytes = Base64.getUrlDecoder().decode(e)
-
-        val modulus = BigInteger(1, nBytes)
-        val exponent = BigInteger(1, eBytes)
-
+        val modulus = BigInteger(1, Base64.getUrlDecoder().decode(n))
+        val exponent = BigInteger(1, Base64.getUrlDecoder().decode(e))
         val spec = RSAPublicKeySpec(modulus, exponent)
-        val factory = KeyFactory.getInstance("RSA")
-        return factory.generatePublic(spec)
+        return KeyFactory.getInstance("RSA").generatePublic(spec)
     }
+
 }
