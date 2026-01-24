@@ -429,3 +429,5 @@ fun `프로필 정보를 업데이트할 수 있다`() {
 ## 1개의 메서드는 15줄을 넘어갈 수 없다.
 
 ## 메서드의 Argument가 2개 이상인 경우 Named Argument를 활용한다.
+
+## companion object 같은 static resource는 가장 위에 작성한다.
