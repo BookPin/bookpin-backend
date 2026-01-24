@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kakao Login Callback</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; padding: 40px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h2 { margin-bottom: 16px; }
+        .result { background: #f8f9fa; border-radius: 8px; padding: 16px; margin: 16px 0; }
+        pre { background: #e9ecef; padding: 12px; border-radius: 6px; font-size: 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+        .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px; background: #007bff; color: white; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .loading { text-align: center; padding: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>카카오 로그인</h2>
+            <div id="loading" class="loading">토큰 발급 중...</div>
+            <div id="result" class="result" style="display:none;">
+                <h3>Access Token</h3>
+                <pre id="access-token"></pre>
+                <h3 style="margin-top:12px;">API 응답</h3>
+                <pre id="api-response"></pre>
+            </div>
+            <div id="error" class="error" style="display:none;"></div>
+            <button class="btn" onclick="location.href='/test/login'">돌아가기</button>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const kakaoClientId = [[${kakaoClientId}]];
+        const code = new URLSearchParams(window.location.search).get('code');
+
+        if (code) {
+            // 인가 코드로 토큰 교환 (백엔드 API 호출)
+            fetch('/api/v1/auth/kakao/token?code=' + code)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('result').style.display = 'block';
+
+                    if (data.accessToken) {
+                        document.getElementById('access-token').textContent = data.accessToken;
+                        document.getElementById('api-response').textContent = JSON.stringify(data, null, 2);
+                        document.getElementById('api-response').className = 'success';
+                    } else {
+                        document.getElementById('access-token').textContent = 'Error';
+                        document.getElementById('api-response').textContent = JSON.stringify(data, null, 2);
+                        document.getElementById('api-response').className = 'error';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('error').textContent = '오류: ' + err.message;
+                });
+        } else {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').textContent = '인가 코드가 없습니다.';
+        }
+    </script>
+</body>
+</html>

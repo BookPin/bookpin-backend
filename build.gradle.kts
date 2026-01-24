@@ -66,6 +66,9 @@ dependencies {
 	// Spring Web
 	implementation("org.springframework.boot:spring-boot-starter-web")
 
+	// Thymeleaf (for test pages)
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
