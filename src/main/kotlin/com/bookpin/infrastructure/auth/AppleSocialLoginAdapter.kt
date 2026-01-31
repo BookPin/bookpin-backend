@@ -24,7 +24,7 @@ class AppleSocialLoginAdapter(
     override fun getUserInfo(accessToken: String): SocialUserInfo {
         val payload = verifyAndDecodeIdToken(accessToken)
         return SocialUserInfo(
-            socialId = payload.sub,
+            socialId = payload.subject,
             email = payload.email,
             nickname = null,
             profileImageUrl = null
@@ -32,22 +32,23 @@ class AppleSocialLoginAdapter(
     }
 
     private fun verifyAndDecodeIdToken(idToken: String): AppleIdTokenPayload {
-        val kid = extractKidFromToken(idToken)
-        val publicKey = getMatchingPublicKey(kid)
+        val keyId = extractKeyIdFromToken(idToken)
+        val publicKey = getMatchingPublicKey(keyId)
         return parseIdToken(idToken, publicKey)
     }
 
-    private fun extractKidFromToken(idToken: String): String {
+    private fun extractKeyIdFromToken(idToken: String): String {
         val headerJson = String(Base64.getUrlDecoder().decode(idToken.split(".")[0]))
         val header = objectMapper.readValue(headerJson, Map::class.java)
         return header["kid"] as String
     }
 
-    private fun getMatchingPublicKey(kid: String): PublicKey {
+    private fun getMatchingPublicKey(keyId: String): PublicKey {
         val publicKeys = appleAuthFeignClient.getPublicKeys()
-        val matchingKey = publicKeys.keys.find { it.kid == kid }
-            ?: throw IllegalArgumentException("Matching public key not found")
-        return generatePublicKey(matchingKey.n, matchingKey.e)
+        val matchingKey = publicKeys.keys.find { it.keyId == keyId }
+            ?: throw IllegalArgumentException("Matching public key not found for keyId: $keyId")
+
+        return generatePublicKey(matchingKey.modulus, matchingKey.exponent)
     }
 
     private fun parseIdToken(idToken: String, publicKey: PublicKey): AppleIdTokenPayload {
@@ -56,14 +57,17 @@ class AppleSocialLoginAdapter(
             .build()
             .parseSignedClaims(idToken)
             .payload
-        return AppleIdTokenPayload(sub = claims.subject, email = claims["email"] as? String)
+
+        return AppleIdTokenPayload(
+            subject = claims.subject,
+            email = claims["email"] as? String
+        )
     }
 
-    private fun generatePublicKey(n: String, e: String): PublicKey {
-        val modulus = BigInteger(1, Base64.getUrlDecoder().decode(n))
-        val exponent = BigInteger(1, Base64.getUrlDecoder().decode(e))
-        val spec = RSAPublicKeySpec(modulus, exponent)
+    private fun generatePublicKey(modulus: String, exponent: String): PublicKey {
+        val modulusBytes = BigInteger(1, Base64.getUrlDecoder().decode(modulus))
+        val exponentBytes = BigInteger(1, Base64.getUrlDecoder().decode(exponent))
+        val spec = RSAPublicKeySpec(modulusBytes, exponentBytes)
         return KeyFactory.getInstance("RSA").generatePublic(spec)
     }
-
 }

@@ -23,8 +23,8 @@ class SecurityUserContextHolder : UserContextHolder {
     private fun getUserPrincipal(): UserPrincipal {
         val authentication = SecurityContextHolder.getContext().authentication
             ?: throw IllegalStateException("No authentication found")
+
         return authentication.principal as? UserPrincipal
             ?: throw IllegalStateException("Invalid authentication principal")
     }
-
 }

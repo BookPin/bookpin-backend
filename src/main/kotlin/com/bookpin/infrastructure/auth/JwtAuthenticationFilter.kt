@@ -25,17 +25,22 @@ class JwtAuthenticationFilter(
         filterChain: FilterChain
     ) {
         val token = extractToken(request)
+
         if (token != null && tokenProvider.validateToken(token)) {
             setAuthentication(token)
         }
+
         filterChain.doFilter(request, response)
     }
 
     private fun extractToken(request: HttpServletRequest): String? {
         val bearerToken = request.getHeader(AUTHORIZATION_HEADER)
+
         return if (bearerToken?.startsWith(BEARER_PREFIX) == true) {
             bearerToken.substring(BEARER_PREFIX.length)
-        } else null
+        } else {
+            null
+        }
     }
 
     private fun setAuthentication(token: String) {
@@ -44,5 +49,4 @@ class JwtAuthenticationFilter(
         val authentication = UsernamePasswordAuthenticationToken(principal, token, emptyList())
         SecurityContextHolder.getContext().authentication = authentication
     }
-
 }

@@ -12,10 +12,8 @@ import javax.crypto.SecretKey
 class JwtTokenAdapter(
     @Value("\${jwt.secret}")
     private val secret: String,
-
     @Value("\${jwt.access-token-validity}")
     private val accessTokenValidity: Long,
-
     @Value("\${jwt.refresh-token-validity}")
     private val refreshTokenValidity: Long
 ) : TokenProvider {
@@ -39,7 +37,7 @@ class JwtTokenAdapter(
                 .build()
                 .parseSignedClaims(token)
             !claims.payload.expiration.before(Date())
-        } catch (e: Exception) {
+        } catch (exception: Exception) {
             false
         }
     }
@@ -50,6 +48,7 @@ class JwtTokenAdapter(
             .build()
             .parseSignedClaims(token)
             .payload
+
         return claims.subject.toLong()
     }
 

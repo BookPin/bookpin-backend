@@ -2,8 +2,8 @@ package com.bookpin.presentation.auth.swagger
 
 import com.bookpin.app.auth.request.RefreshTokenRequest
 import com.bookpin.app.auth.request.SocialLoginRequest
-import com.bookpin.app.auth.request.SocialLoginResponse
-import com.bookpin.app.auth.request.TokenResponse
+import com.bookpin.app.auth.response.SocialLoginResponse
+import com.bookpin.app.auth.response.TokenResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity

@@ -1,5 +1,6 @@
 package com.bookpin.app.auth
 
+import com.bookpin.app.auth.response.AuthResponse
 import com.bookpin.domain.auth.SocialLoginClient
 import com.bookpin.domain.auth.SocialUserInfo
 import com.bookpin.domain.auth.TokenPair
@@ -36,7 +37,8 @@ class AuthService(
         require(tokenProvider.validateToken(refreshToken)) { "Invalid refresh token" }
 
         val userId = tokenProvider.getUserIdFromToken(refreshToken)
-        userRepository.findById(userId) ?: throw IllegalArgumentException("User not found")
+        userRepository.findById(userId)
+            ?: throw IllegalArgumentException("User not found")
 
         return createTokenPair(userId)
     }
@@ -44,10 +46,15 @@ class AuthService(
     private fun getSocialUserInfo(provider: SocialType, accessToken: String): SocialUserInfo {
         val client = socialLoginClients.find { it.getProviderType() == provider }
             ?: throw IllegalArgumentException("Unsupported social provider: $provider")
+
         return client.getUserInfo(accessToken)
     }
 
-    private fun findOrCreateUser(existingUser: User?, socialUserInfo: SocialUserInfo, provider: SocialType): User {
+    private fun findOrCreateUser(
+        existingUser: User?,
+        socialUserInfo: SocialUserInfo,
+        provider: SocialType
+    ): User {
         return if (existingUser != null) {
             updateExistingUser(existingUser, socialUserInfo)
         } else {
@@ -81,5 +88,4 @@ class AuthService(
             refreshToken = tokenProvider.createRefreshToken(userId)
         )
     }
-
 }

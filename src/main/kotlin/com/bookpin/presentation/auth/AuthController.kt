@@ -3,8 +3,8 @@ package com.bookpin.presentation.auth
 import com.bookpin.app.auth.AuthService
 import com.bookpin.app.auth.request.RefreshTokenRequest
 import com.bookpin.app.auth.request.SocialLoginRequest
-import com.bookpin.app.auth.request.SocialLoginResponse
-import com.bookpin.app.auth.request.TokenResponse
+import com.bookpin.app.auth.response.SocialLoginResponse
+import com.bookpin.app.auth.response.TokenResponse
 import com.bookpin.domain.user.SocialType
 import com.bookpin.infrastructure.auth.feign.kakao.KakaoTokenFeignClient
 import com.bookpin.presentation.auth.swagger.AuthControllerSwagger

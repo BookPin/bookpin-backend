@@ -25,8 +25,8 @@ class FcmNotificationAdapter(
             val fcmMessage = buildFcmMessage(message)
             val messageId = firebaseMessaging.send(fcmMessage)
             NotificationResult(success = true, messageId = messageId)
-        } catch (e: Exception) {
-            handleSendError(e)
+        } catch (exception: Exception) {
+            handleSendError(exception)
         }
     }
 
@@ -49,9 +49,8 @@ class FcmNotificationAdapter(
             .build()
     }
 
-    private fun handleSendError(e: Exception): NotificationResult {
-        logger.error("Failed to send FCM notification", e)
-        return NotificationResult(success = false, errorMessage = e.message)
+    private fun handleSendError(exception: Exception): NotificationResult {
+        logger.error("Failed to send FCM notification", exception)
+        return NotificationResult(success = false, errorMessage = exception.message)
     }
-
 }

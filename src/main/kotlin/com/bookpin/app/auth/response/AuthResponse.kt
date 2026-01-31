@@ -1,15 +1,8 @@
-package com.bookpin.app.auth.request
+package com.bookpin.app.auth.response
 
-data class SocialLoginResponse(
-
+data class AuthResponse(
     val userId: Long,
-
     val accessToken: String,
-
     val refreshToken: String,
-
     val isNewUser: Boolean
-
-) {
-
-}
+)

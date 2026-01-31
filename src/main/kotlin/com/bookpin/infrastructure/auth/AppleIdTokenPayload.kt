@@ -1,6 +1,6 @@
 package com.bookpin.infrastructure.auth
 
 data class AppleIdTokenPayload(
-    val sub: String,
+    val subject: String,
     val email: String?
 )

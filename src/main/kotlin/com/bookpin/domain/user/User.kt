@@ -12,7 +12,6 @@ data class User(
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
 ) {
-
     init {
         require(socialId.isNotBlank()) { "socialId must not be blank" }
         email?.let {
@@ -28,12 +27,11 @@ data class User(
         nickname: String? = this.nickname,
         profileImageUrl: String? = this.profileImageUrl
     ): User {
-        return this.copy(
+        return copy(
             email = email,
             nickname = nickname,
             profileImageUrl = profileImageUrl,
             updatedAt = LocalDateTime.now()
         )
     }
-
 }
