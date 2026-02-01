@@ -44,7 +44,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and Push Docker Image
-        run: docker buildx build --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/book-archiving:latest . --push
+        run: docker buildx build --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/bookpin:latest . --push
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.3

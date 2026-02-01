@@ -60,8 +60,8 @@ dependencies {
 	// H2 for test
 	runtimeOnly("com.h2database:h2")
 
-	// MySQL for production
-	runtimeOnly("com.mysql:mysql-connector-j")
+	// PostgreSQL for production
+	runtimeOnly("org.postgresql:postgresql")
 
 	// Spring Web
 	implementation("org.springframework.boot:spring-boot-starter-web")
