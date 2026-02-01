@@ -5,9 +5,9 @@ plugins {
 	id ("io.spring.dependency-management") version "1.1.7"
 }
 
-extra["springCloudVersion"] = "2023.0.2"
+extra["springCloudVersion"] = "2025.1.0"
 
-group = "com.book"
+group = "com.bookpin"
 version = "0.0.1-SNAPSHOT"
 description = "Demo project for Spring Boot"
 
@@ -37,19 +37,14 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
-	implementation("com.amazonaws:aws-java-sdk-s3")
 
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("com.google.firebase:firebase-admin:9.2.0")
 
-	// aws
-	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
-	implementation("com.amazonaws:aws-java-sdk-s3:1.12.767")
+	// AWS SDK v2
 	implementation("software.amazon.awssdk:s3:2.27.3")
-	implementation("software.amazon.awssdk:s3control:2.27.3")
-	implementation("software.amazon.awssdk:s3outposts:2.27.3")
 
 
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -65,11 +60,14 @@ dependencies {
 	// H2 for test
 	runtimeOnly("com.h2database:h2")
 
-	// MySQL for production
-	runtimeOnly("com.mysql:mysql-connector-j")
+	// PostgreSQL for production
+	runtimeOnly("org.postgresql:postgresql")
 
 	// Spring Web
 	implementation("org.springframework.boot:spring-boot-starter-web")
+
+	// Thymeleaf (for test pages)
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
