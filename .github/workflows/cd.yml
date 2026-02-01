@@ -54,7 +54,7 @@ jobs:
           key: ${{ secrets.WAS_SSH_KEY }}
           port: ${{ secrets.WAS_SSH_PORT }}
           script: |
-            sudo sh deploy.sh
+            sudo sh zero-down-time.sh
 
       - name: Send Deploy Success Notification
         if: ${{ success() }}
