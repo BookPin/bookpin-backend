@@ -1,11 +1,13 @@
 package com.bookpin.presentation.test
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 
 @Controller
+@Profile("local", "dev")
 class LoginTestController(
     @Value("\${oauth.kakao.client-id}") private val kakaoClientId: String,
     @Value("\${oauth.kakao.javascript-key}") private val kakaoJavascriptKey: String,
