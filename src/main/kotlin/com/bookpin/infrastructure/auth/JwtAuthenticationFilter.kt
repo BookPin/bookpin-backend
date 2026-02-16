@@ -17,6 +17,18 @@ class JwtAuthenticationFilter(
     companion object {
         private const val AUTHORIZATION_HEADER = "Authorization"
         private const val BEARER_PREFIX = "Bearer "
+        private val PERMIT_ALL_PATHS = listOf(
+            "/api/v1/auth/",
+            "/swagger-ui",
+            "/v3/api-docs",
+            "/health",
+            "/webjars/"
+        )
+    }
+
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        val path = request.requestURI
+        return PERMIT_ALL_PATHS.any { path.startsWith(it) } || path == "/"
     }
 
     override fun doFilterInternal(
