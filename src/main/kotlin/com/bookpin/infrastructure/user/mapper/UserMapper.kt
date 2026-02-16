@@ -1,25 +1,23 @@
 package com.bookpin.infrastructure.user.mapper
 
-import com.bookpin.domain.user.User
+import com.bookpin.domain.user.LoginUser
 import com.bookpin.infrastructure.user.jpa.UserEntity
 
 object UserMapper {
 
-    fun toEntity(user: User): UserEntity {
+    fun toEntity(loginUser: LoginUser): UserEntity {
         return UserEntity(
-            id = user.id,
-            socialId = user.socialId,
-            socialProvider = user.socialProvider,
-            email = user.email,
-            nickname = user.nickname,
-            profileImageUrl = user.profileImageUrl,
-            createdAt = user.createdAt,
-            updatedAt = user.updatedAt
+            id = loginUser.id,
+            socialId = loginUser.socialId,
+            socialProvider = loginUser.socialProvider,
+            email = loginUser.email,
+            nickname = loginUser.nickname,
+            profileImageUrl = loginUser.profileImageUrl
         )
     }
 
-    fun toDomain(entity: UserEntity): User {
-        return User(
+    fun toDomain(entity: UserEntity): LoginUser {
+        return LoginUser(
             id = entity.id,
             socialId = entity.socialId,
             socialProvider = entity.socialProvider,

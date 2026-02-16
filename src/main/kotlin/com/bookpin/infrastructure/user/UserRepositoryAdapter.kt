@@ -1,8 +1,8 @@
 package com.bookpin.infrastructure.user
 
 import com.bookpin.domain.user.SocialType
-import com.bookpin.domain.user.User
-import com.bookpin.domain.user.UserRepository
+import com.bookpin.domain.user.LoginUser
+import com.bookpin.domain.user.repository.UserRepository
 import com.bookpin.infrastructure.user.jpa.UserJpaRepository
 import com.bookpin.infrastructure.user.mapper.UserMapper
 import org.springframework.data.repository.findByIdOrNull
@@ -13,17 +13,17 @@ class UserRepositoryAdapter(
     private val userJpaRepository: UserJpaRepository
 ) : UserRepository {
 
-    override fun save(user: User): User {
-        val entity = UserMapper.toEntity(user)
+    override fun save(loginUser: LoginUser): LoginUser {
+        val entity = UserMapper.toEntity(loginUser)
         val savedEntity = userJpaRepository.save(entity)
         return UserMapper.toDomain(savedEntity)
     }
 
-    override fun findById(id: Long): User? {
+    override fun findById(id: Long): LoginUser? {
         return userJpaRepository.findByIdOrNull(id)?.let { UserMapper.toDomain(it) }
     }
 
-    override fun findBySocialIdAndSocialProvider(socialId: String, socialProvider: SocialType): User? {
+    override fun findBySocialIdAndSocialProvider(socialId: String, socialProvider: SocialType): LoginUser? {
         return userJpaRepository.findBySocialIdAndSocialProvider(socialId, socialProvider)
             ?.let { UserMapper.toDomain(it) }
     }

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class UserTest {
+class LoginUserTest {
 
     @Test
     fun `socialId가 빈 문자열이면 예외가 발생한다`() {
@@ -15,7 +15,7 @@ class UserTest {
 
         // when & then
         assertThrows<IllegalArgumentException> {
-            User(socialId = blankSocialId, socialProvider = SocialType.KAKAO)
+            LoginUser(socialId = blankSocialId, socialProvider = SocialType.KAKAO)
         }
     }
 
@@ -26,7 +26,7 @@ class UserTest {
 
         // when & then
         assertThrows<IllegalArgumentException> {
-            User(socialId = "12345", socialProvider = SocialType.KAKAO, email = invalidEmail)
+            LoginUser(socialId = "12345", socialProvider = SocialType.KAKAO, email = invalidEmail)
         }
     }
 
@@ -37,7 +37,7 @@ class UserTest {
 
         // when & then
         assertThrows<IllegalArgumentException> {
-            User(socialId = "12345", socialProvider = SocialType.KAKAO, nickname = longNickname)
+            LoginUser(socialId = "12345", socialProvider = SocialType.KAKAO, nickname = longNickname)
         }
     }
 
