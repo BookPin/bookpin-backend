@@ -72,6 +72,11 @@ dependencies {
 	// Thymeleaf (for test pages)
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.767")
+    implementation("software.amazon.awssdk:s3:2.27.3")
+    implementation("software.amazon.awssdk:s3control:2.27.3")
+    implementation("software.amazon.awssdk:s3outposts:2.27.3")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
