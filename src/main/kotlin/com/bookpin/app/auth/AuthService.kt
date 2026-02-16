@@ -5,9 +5,9 @@ import com.bookpin.domain.auth.SocialLoginClient
 import com.bookpin.domain.auth.SocialUserInfo
 import com.bookpin.domain.auth.TokenPair
 import com.bookpin.domain.auth.TokenProvider
+import com.bookpin.domain.user.LoginUser
 import com.bookpin.domain.user.SocialType
-import com.bookpin.domain.user.User
-import com.bookpin.domain.user.UserRepository
+import com.bookpin.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,6 +17,32 @@ class AuthService(
     private val userRepository: UserRepository,
     private val tokenProvider: TokenProvider
 ) {
+
+    @Transactional
+    fun deviceLogin(deviceId: String): AuthResponse {
+        val existingUser = userRepository.findBySocialIdAndSocialProvider(
+            socialId = deviceId,
+            socialProvider = SocialType.DEVICE
+        )
+
+        val user = existingUser ?: createDeviceUser(deviceId)
+        val tokenPair = createTokenPair(user.id)
+
+        return AuthResponse(
+            userId = user.id,
+            accessToken = tokenPair.accessToken,
+            refreshToken = tokenPair.refreshToken,
+            isNewUser = existingUser == null
+        )
+    }
+
+    private fun createDeviceUser(deviceId: String): LoginUser {
+        val newUser = LoginUser(
+            socialId = deviceId,
+            socialProvider = SocialType.DEVICE
+        )
+        return userRepository.save(newUser)
+    }
 
     @Transactional
     fun socialLogin(provider: SocialType, accessToken: String): AuthResponse {
@@ -51,19 +77,19 @@ class AuthService(
     }
 
     private fun findOrCreateUser(
-        existingUser: User?,
+        existingLoginUser: LoginUser?,
         socialUserInfo: SocialUserInfo,
         provider: SocialType
-    ): User {
-        return if (existingUser != null) {
-            updateExistingUser(existingUser, socialUserInfo)
+    ): LoginUser {
+        return if (existingLoginUser != null) {
+            updateExistingUser(existingLoginUser, socialUserInfo)
         } else {
             createNewUser(socialUserInfo, provider)
         }
     }
 
-    private fun updateExistingUser(user: User, socialUserInfo: SocialUserInfo): User {
-        val updatedUser = user.updateProfile(
+    private fun updateExistingUser(loginUser: LoginUser, socialUserInfo: SocialUserInfo): LoginUser {
+        val updatedUser = loginUser.updateProfile(
             email = socialUserInfo.email,
             nickname = socialUserInfo.nickname,
             profileImageUrl = socialUserInfo.profileImageUrl
@@ -71,15 +97,15 @@ class AuthService(
         return userRepository.save(updatedUser)
     }
 
-    private fun createNewUser(socialUserInfo: SocialUserInfo, provider: SocialType): User {
-        val newUser = User(
+    private fun createNewUser(socialUserInfo: SocialUserInfo, provider: SocialType): LoginUser {
+        val newLoginUser = LoginUser(
             socialId = socialUserInfo.socialId,
             socialProvider = provider,
             email = socialUserInfo.email,
             nickname = socialUserInfo.nickname,
             profileImageUrl = socialUserInfo.profileImageUrl
         )
-        return userRepository.save(newUser)
+        return userRepository.save(newLoginUser)
     }
 
     private fun createTokenPair(userId: Long): TokenPair {

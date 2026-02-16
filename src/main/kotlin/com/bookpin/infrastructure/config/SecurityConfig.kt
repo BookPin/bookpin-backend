@@ -11,11 +11,13 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfigurationSource
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val corsConfigurationSource: CorsConfigurationSource
 ) {
 
     @Bean
@@ -24,6 +26,7 @@ class SecurityConfig(
     fun devSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
             .securityMatcher("/test/**", "/h2-console/**")
+            .cors { it.configurationSource(corsConfigurationSource) }
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
@@ -39,6 +42,7 @@ class SecurityConfig(
     @Order(2)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
+            .cors { it.configurationSource(corsConfigurationSource) }
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { configureAuthorization(it) }
@@ -51,7 +55,16 @@ class SecurityConfig(
         auth
             .requestMatchers("/", "/health").permitAll()
             .requestMatchers("/api/v1/auth/**").permitAll()
-            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/bookpin/**").permitAll()
+            // Swagger
+            .requestMatchers(
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/swagger-resources/**",
+                "/v3/api-docs/**",
+                "/webjars/**",
+                "/bookpin/**",
+                "/api/v1/**"
+            ).permitAll()
             .anyRequest().authenticated()
     }
 }

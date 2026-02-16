@@ -2,7 +2,7 @@ package com.bookpin.domain.fixture
 
 import com.bookpin.domain.common.RandomGenerator
 import com.bookpin.domain.user.SocialType
-import com.bookpin.domain.user.User
+import com.bookpin.domain.user.LoginUser
 import java.time.LocalDateTime
 
 object UserFixture {
@@ -16,8 +16,8 @@ object UserFixture {
         profileImageUrl: String? = RandomGenerator.generateNonNullString(5),
         createdAt: LocalDateTime = LocalDateTime.now(),
         updatedAt: LocalDateTime = LocalDateTime.now()
-    ): User {
-        return User(
+    ): LoginUser {
+        return LoginUser(
             id = id,
             socialId = socialId,
             socialProvider = socialProvider,
