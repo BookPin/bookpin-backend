@@ -4,9 +4,10 @@ enum class BookSearchSource(
     val priority:Int,
 ) {
 
-    KAKAO(3),
-    NAVER(2),
-    ALADIN(1),
+    KAKAO(4),
+    NAVER(3),
+    ALADIN(2),
+    GOOGLE(1),
     ;
 
 }

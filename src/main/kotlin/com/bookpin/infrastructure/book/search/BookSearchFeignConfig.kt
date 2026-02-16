@@ -36,3 +36,14 @@ class AladinFeignConfig(
         }
     }
 }
+
+class GoogleFeignConfig(
+    private val properties: BookSearchProperties
+) {
+    @Bean
+    fun googleRequestInterceptor(): RequestInterceptor {
+        return RequestInterceptor { template ->
+            template.query("key", properties.google.apiKey)
+        }
+    }
+}

@@ -11,26 +11,24 @@ import org.springframework.stereotype.Component
 class BookSearchAdapter(
     private val kakaoBookSearchClient: KakaoBookSearchClient,
     private val naverBookSearchClient: NaverBookSearchClient,
-    private val aladinBookSearchClient: AladinBookSearchClient
+    private val aladinBookSearchClient: AladinBookSearchClient,
+    private val googleBookSearchClient: GoogleBookSearchClient,
 ) : BookSearchClient {
 
     override suspend fun search(query: String): List<BookSearchResult> = coroutineScope {
         val kakaoDeferred = async { searchKakao(query) }
         val naverDeferred = async { searchNaver(query) }
         val aladinDeferred = async { searchAladin(query) }
+        val googleBookSearchClient = async { searchGoogle(query) }
 
         val kakaoResults = kakaoDeferred.await()
         val naverResults = naverDeferred.await()
         val aladinResults = aladinDeferred.await()
+        val googleResults = googleBookSearchClient.await()
 
-        mergeAndDeduplicateResults(
-            kakaoResults = kakaoResults,
-            naverResults = naverResults,
-            aladinResults = aladinResults
-        )
+        mergeAndDeduplicateResults(kakaoResults, naverResults, aladinResults, googleResults)
     }
 
-    // Naver -> Kakao -> Aladin 순으로 우선순위를 두고 결과를 병합합니다.
     private fun searchKakao(query: String): List<BookSearchResult> {
         return try {
             kakaoBookSearchClient.search(query).documents.map { doc ->
@@ -85,12 +83,33 @@ class BookSearchAdapter(
         }
     }
 
+    private fun searchGoogle(query: String): List<BookSearchResult> {
+        return try {
+            googleBookSearchClient.search(query).items.orEmpty()
+                .filter { it.volumeInfo != null }
+                .map { item ->
+                    val volumeInfo = item.volumeInfo!!
+                    BookSearchResult(
+                        title = volumeInfo.title ?: "",
+                        author = volumeInfo.authors.orEmpty().joinToString(", "),
+                        imageUrl = volumeInfo.getThumbnail(),
+                        totalPage = volumeInfo.getPageCount(),
+                        isbn = volumeInfo.getIsbn13(),
+                        publisher = volumeInfo.publisher,
+                        source = BookSearchSource.GOOGLE
+                    )
+                }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+
     private fun mergeAndDeduplicateResults(
-        kakaoResults: List<BookSearchResult>,
-        naverResults: List<BookSearchResult>,
-        aladinResults: List<BookSearchResult>
+        vararg results: List<BookSearchResult>,
     ): List<BookSearchResult> {
-        val allResults = aladinResults + kakaoResults + naverResults
+        val allResults = results.asList()
+            .flatten()
 
         return BookSearchMerger.merge(allResults)
     }
