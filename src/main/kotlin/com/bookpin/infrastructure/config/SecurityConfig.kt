@@ -62,7 +62,8 @@ class SecurityConfig(
                 "/swagger-resources/**",
                 "/v3/api-docs/**",
                 "/webjars/**",
-                "/bookpin/**"
+                "/bookpin/**",
+                "/api/v1/**"
             ).permitAll()
             .anyRequest().authenticated()
     }

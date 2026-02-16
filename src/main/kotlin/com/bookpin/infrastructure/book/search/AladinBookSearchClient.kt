@@ -1,27 +1,36 @@
 package com.bookpin.infrastructure.book.search
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 
-@FeignClient(name = "aladinBookSearch", url = "https://www.aladin.co.kr")
+@FeignClient(
+    name = "aladinBookSearch",
+    url = "https://www.aladin.co.kr",
+    configuration = [AladinFeignConfig::class]
+)
 interface AladinBookSearchClient {
 
     @GetMapping("/ttb/api/ItemSearch.aspx")
     fun search(
         @RequestParam("Query") query: String,
-        @RequestParam("ttbkey") ttbKey: String = "\${book.search.aladin.ttb-key}",
-        @RequestParam("QueryType", defaultValue = "Title") queryType: String = "Title",
-        @RequestParam("MaxResults", defaultValue = "100") maxResults: Int = 100,
-        @RequestParam("Output", defaultValue = "JS") output: String = "JS",
-        @RequestParam("Version", defaultValue = "20131101") version: String = "20131101"
+        @RequestParam("QueryType") queryType: String = "Title",
+        @RequestParam("MaxResults") maxResults: Int = 100,
+        @RequestParam("Output") output: String = "JS",
+        @RequestParam("Version") version: String = "20131101",
+        @RequestParam("Cover") cover: String = "Big",
+        @RequestParam("OptResult") optResult: String = "packing"
     ): AladinBookSearchResponse
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class AladinBookSearchResponse(
-    val item: List<AladinBookItem>
+    val item: List<AladinBookItem> = emptyList()
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class AladinBookItem(
     val title: String,
     val author: String,
@@ -32,6 +41,11 @@ data class AladinBookItem(
     val subInfo: AladinSubInfo?
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class AladinSubInfo(
-    val itemPage: Int?
-)
+    val itemPage: Int?,
+    @JsonProperty("ppiNum") // 페이지 수가 ppiNum으로 올 수도 있음
+    val ppiNum: Int?
+) {
+    fun getPageCount(): Int = itemPage ?: ppiNum ?: 0
+}

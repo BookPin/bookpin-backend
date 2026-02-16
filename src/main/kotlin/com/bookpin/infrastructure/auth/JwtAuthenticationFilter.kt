@@ -22,7 +22,8 @@ class JwtAuthenticationFilter(
             "/swagger-ui",
             "/v3/api-docs",
             "/health",
-            "/webjars/"
+            "/webjars/",
+            "/api/v1/"
         )
     }
 

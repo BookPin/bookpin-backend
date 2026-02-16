@@ -30,6 +30,7 @@ class BookSearchAdapter(
         )
     }
 
+    // Naver -> Kakao -> Aladin 순으로 우선순위를 두고 결과를 병합합니다.
     private fun searchKakao(query: String): List<BookSearchResult> {
         return try {
             kakaoBookSearchClient.search(query).documents.map { doc ->
@@ -73,7 +74,7 @@ class BookSearchAdapter(
                     title = item.title,
                     author = item.author,
                     imageUrl = item.cover,
-                    totalPage = item.subInfo?.itemPage ?: 0,
+                    totalPage = item.subInfo?.getPageCount() ?: 0,
                     isbn = item.isbn13 ?: item.isbn,
                     publisher = item.publisher,
                     source = BookSearchSource.ALADIN
@@ -90,7 +91,8 @@ class BookSearchAdapter(
         aladinResults: List<BookSearchResult>
     ): List<BookSearchResult> {
         val allResults = aladinResults + kakaoResults + naverResults
-        return allResults.distinctBy { it.title.lowercase() + it.author.lowercase() }
+
+        return BookSearchMerger.merge(allResults)
     }
 
     private fun String.removeHtmlTags(): String {
