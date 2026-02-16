@@ -27,9 +27,8 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.3.0")
-	implementation("io.swagger.core.v3:swagger-core:2.2.19")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.4")
 
 	implementation("javax.xml.bind:jaxb-api:2.3.0")
 
@@ -41,6 +40,10 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+	// Coroutines
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
 	implementation("com.google.firebase:firebase-admin:9.2.0")
 
 	// AWS SDK v2
