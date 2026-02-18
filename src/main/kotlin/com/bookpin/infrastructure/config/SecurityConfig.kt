@@ -63,7 +63,6 @@ class SecurityConfig(
                 "/v3/api-docs/**",
                 "/webjars/**",
                 "/bookpin/**",
-                "/api/v1/**"
             ).permitAll()
             .anyRequest().authenticated()
     }

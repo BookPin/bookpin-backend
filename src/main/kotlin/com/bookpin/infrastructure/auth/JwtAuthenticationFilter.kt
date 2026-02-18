@@ -23,7 +23,6 @@ class JwtAuthenticationFilter(
             "/v3/api-docs",
             "/health",
             "/webjars/",
-            "/api/v1/"
         )
     }
 
