@@ -1,5 +1,6 @@
 package com.bookpin.presentation.common
 
+import com.bookpin.exception.UnauthorizedException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,11 +19,28 @@ class GlobalExceptionHandler {
 
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ErrorResponse(
-                code = "INTERNAL_SERVER_ERROR",
-                message = "서버 내부 오류가 발생했습니다.",
-                timestamp = LocalDateTime.now()
-            ))
+            .body(
+                ErrorResponse(
+                    code = "INTERNAL_SERVER_ERROR",
+                    message = "서버 내부 오류가 발생했습니다.",
+                    timestamp = LocalDateTime.now()
+                )
+            )
+    }
+
+    @ExceptionHandler(UnauthorizedException::class)
+    fun handleUnauthorizedException(unauthorizedException: UnauthorizedException): ResponseEntity<ErrorResponse> {
+        log.error("Unexpected error occurred: ${unauthorizedException.message}", unauthorizedException)
+
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(
+                ErrorResponse(
+                    code = "UNAUTHORIZED",
+                    message = "인증이 필요합니다.",
+                    timestamp = LocalDateTime.now()
+                )
+            )
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
@@ -31,11 +49,13 @@ class GlobalExceptionHandler {
 
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(
-                code = "BAD_REQUEST",
-                message = ex.message ?: "잘못된 요청입니다.",
-                timestamp = LocalDateTime.now()
-            ))
+            .body(
+                ErrorResponse(
+                    code = "BAD_REQUEST",
+                    message = ex.message ?: "잘못된 요청입니다.",
+                    timestamp = LocalDateTime.now()
+                )
+            )
     }
 
     @ExceptionHandler(IllegalStateException::class)
@@ -44,11 +64,13 @@ class GlobalExceptionHandler {
 
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
-            .body(ErrorResponse(
-                code = "CONFLICT",
-                message = ex.message ?: "처리할 수 없는 상태입니다.",
-                timestamp = LocalDateTime.now()
-            ))
+            .body(
+                ErrorResponse(
+                    code = "CONFLICT",
+                    message = ex.message ?: "처리할 수 없는 상태입니다.",
+                    timestamp = LocalDateTime.now()
+                )
+            )
     }
 }
 

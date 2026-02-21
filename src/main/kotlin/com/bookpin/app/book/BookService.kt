@@ -8,6 +8,7 @@ import com.bookpin.domain.book.client.BookSearchClient
 import com.bookpin.domain.book.client.BookSearchResult
 import com.bookpin.domain.book.Bookmark
 import com.bookpin.domain.book.repository.BookmarkRepository
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -21,8 +22,10 @@ class BookService(
 ) {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    suspend fun searchBooks(query: String): List<BookSearchResult> {
-        return bookSearchClient.search(query)
+    fun searchBooks(query: String): List<BookSearchResult> {
+        return runBlocking {
+            bookSearchClient.search(query)
+        }
     }
 
     @Transactional

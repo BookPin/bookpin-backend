@@ -3,6 +3,7 @@ package com.bookpin.infrastructure.auth
 import com.bookpin.domain.auth.TokenProvider
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.*
@@ -17,6 +18,8 @@ class JwtTokenAdapter(
     @Value("\${jwt.refresh-token-validity}")
     private val refreshTokenValidity: Long
 ) : TokenProvider {
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     private val secretKey: SecretKey by lazy {
         Keys.hmacShaKeyFor(secret.toByteArray())
@@ -38,6 +41,7 @@ class JwtTokenAdapter(
                 .parseSignedClaims(token)
             !claims.payload.expiration.before(Date())
         } catch (exception: Exception) {
+            log.warn("JWT validation failed: ${exception.message}")
             false
         }
     }

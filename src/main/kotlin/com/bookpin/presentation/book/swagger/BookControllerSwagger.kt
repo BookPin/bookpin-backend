@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam
 interface BookControllerSwagger {
 
     @Operation(summary = "책 검색", description = "제목으로 책을 검색합니다.")
-    suspend fun searchBooks(@RequestParam query: String): ResponseEntity<List<BookSearchResponse>>
+    fun searchBooks(@RequestParam query: String): ResponseEntity<List<BookSearchResponse>>
 
     @Operation(summary = "책 추가", description = "책장에 새로운 책을 추가합니다.")
     fun addBook(@RequestBody request: AddBookRequest): ResponseEntity<BookResponse>

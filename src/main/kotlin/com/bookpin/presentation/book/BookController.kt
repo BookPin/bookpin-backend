@@ -26,7 +26,7 @@ class BookController(
 ) : BookControllerSwagger {
 
     @GetMapping("/search")
-    override suspend fun searchBooks(
+    override fun searchBooks(
         @RequestParam query: String
     ): ResponseEntity<List<BookSearchResponse>> {
         val results = bookService.searchBooks(query)

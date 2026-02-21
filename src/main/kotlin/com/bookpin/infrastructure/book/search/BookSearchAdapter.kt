@@ -94,7 +94,7 @@ class BookSearchAdapter(
                         author = volumeInfo.authors.orEmpty().joinToString(", "),
                         imageUrl = volumeInfo.getThumbnail(),
                         totalPage = volumeInfo.getPageCount(),
-                        isbn = volumeInfo.getIsbn13(),
+                        isbn = volumeInfo.getIsbn(),
                         publisher = volumeInfo.publisher,
                         source = BookSearchSource.GOOGLE
                     )

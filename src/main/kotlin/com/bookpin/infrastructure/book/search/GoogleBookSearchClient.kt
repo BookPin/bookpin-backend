@@ -45,8 +45,12 @@ data class GoogleVolumeInfo(
     fun getThumbnail(): String? =
         imageLinks?.thumbnail?.replace("http://", "https://")
 
-    fun getIsbn13(): String? =
-        industryIdentifiers?.firstOrNull { it.type == "ISBN_13" }?.identifier
+    fun getIsbn(): String? {
+        val identifiers = industryIdentifiers ?: return null
+        return identifiers.firstOrNull { it.type == "ISBN_13" }?.identifier
+            ?: identifiers.firstOrNull { it.type == "ISBN_10" }?.identifier
+            ?: identifiers.firstOrNull()?.identifier
+    }
 
     fun getPageCount(): Int = pageCount ?: 0
 }
